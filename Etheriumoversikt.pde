@@ -1,4 +1,4 @@
-XML xml;
+
 JSONObject json;
 Float price;
 
