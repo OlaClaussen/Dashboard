@@ -1,6 +1,6 @@
 import java.util.Date;
-float my_num=0;
-float r=0;
+float my_num=100;
+float r=0.5;
 
 int bronze = #cd7f32; 
 int movState = 0; 
@@ -29,7 +29,7 @@ void setup() {
 void mouseClicked() {
   if (movState == 0) {
     movState = 1;
-    background(30);
+    background(0);
   } else {
     movState = 0;
   }
@@ -37,7 +37,7 @@ void mouseClicked() {
 
 void draw() {
   if (movState == 0) {
-    background(30);
+    background(0);
     fill(bronze);
 
     text(hour() + ":" + minute(), 50, 50); // ENKEL KLOKKE
