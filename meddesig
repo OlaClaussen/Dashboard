@@ -1,0 +1,187 @@
+import java.util.*;
+import java.text.*;
+PFont font; 
+PFont tittel;
+
+
+int bronze = #cd7f32; 
+int mouseState = 0; 
+String nullmin = "";
+String nullhour = "";
+
+
+//Skjermsparer 
+float my_num=10;  
+float r=100;
+
+//Ruter
+JSONArray ruter;
+
+//ETH - Ola
+JSONObject eth, infoEurNok;
+float price, EURNOK;
+float Oeth = 8.52177; 
+float OOriginalPrice = 181.9;
+float OOriginalInvest = (Oeth * OOriginalPrice);
+float OReturns; 
+float OValue; 
+
+//ETH - Anders
+float AndOrigEth = 640.0;
+float AndOrigBuyEthPrice = 8.64; // euro / eth
+float AndOrigEthInvest = AndOrigEth * AndOrigBuyEthPrice;
+float AndCurrentValue = 0.0;
+float AndCurrentProfit = 0.0;
+
+
+
+void setup() {
+  size(1400,900);
+  //fullScreen(); //1440 x 900
+  pixelDensity(displayDensity());
+  noCursor();
+  font = createFont("Lato-Regular",14);
+  tittel = createFont("Lato-Semibold",20);
+}
+
+void mouseClicked() {
+  if (mouseState == 0) {
+    mouseState = 1;
+    background(0);
+  } else {
+    mouseState = 0;
+  }
+}
+
+void draw() {
+  if (mouseState == 0) {
+    background(0);
+    
+    
+    
+    if (minute() < 10) {
+    nullmin = "0";
+    } else {
+    nullmin = "";
+    }
+    if (hour() < 10) {
+    nullhour = "0";
+    } else {
+    nullhour = "";
+    }
+    textFont(tittel,30);
+    fill(bronze);
+    text(nullhour + hour() + ":" + nullmin + minute(), width-110, 50); 
+   
+    textFont(font);
+    fill(255);
+  
+   
+    
+    //----------------------------------------------------------------------------ETHEREUM
+
+    eth = loadJSONObject("https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=EUR");
+    price = eth.getFloat("EUR");
+
+    Date date = new Date();
+    String dagensDato = date.toString();
+    SimpleDateFormat ft = new SimpleDateFormat ("yyyy-MM-dd");
+    //text(ft.format(date), 200, 160);
+    dagensDato = (ft.format(date)).toString();  // Må se ut som 2017-08-10 hvis 10. aug 2017
+    infoEurNok = loadJSONObject("http://api.fixer.io/latest?base=EUR&date=" + dagensDato);
+    EURNOK     = infoEurNok.getJSONObject("rates").getFloat("NOK");
+
+    //text("1 EUR = " + EURNOK + " NOK", 200, 90);
+    
+    OValue = (Oeth*price);
+    OReturns = (OValue-OOriginalInvest);
+    AndCurrentValue = AndOrigEth * price;
+    AndCurrentProfit = AndCurrentValue - AndOrigEthInvest;
+
+
+    textFont(tittel);
+    text("Etherium", 200, 100);
+    textFont(font,12);
+    text(price*EURNOK + " kr", 200, 115);
+    
+    textFont(tittel,16);
+    text("Ola", 200, 145);
+    textFont(font,12);
+    text("Beholdning",200,165);
+    textSize(16);
+    text(OValue * EURNOK + " kr",200,182);
+    
+    if (OReturns > 0 ) {
+      fill(#00FF00);
+    } else {
+      fill(#FF0000);
+    }
+    textFont(font,16);
+    //text("Ola:  " + OReturns*EURNOK + " kr.", 200, 130);
+    text(OReturns * EURNOK * 0.72 + " kr", 200, 222);
+    textSize(12);
+    fill(255);
+    text("Fortjeneste etter skatt",200,205);
+     // Stopper tidligere fargevalg
+     
+     
+    stroke(255);
+    line(200, 230, 450, 230);
+    
+    textFont(tittel,16);
+    text("Anders", 200, 260);
+    textFont(font,12);
+    text("Beholdning",200,280);
+    
+
+    if (AndCurrentProfit > 0 ) {
+      fill(#00FF00);
+    } else {
+      fill(#FF0000);
+    }
+
+    text(AndCurrentProfit * EURNOK + " kr.", 200, 295);
+    text("Anders (etter 28 % skatt):  " + AndCurrentProfit * EURNOK * 0.72 + " kr.", 200, 320);
+    fill(255); // Stopper tidligere fargevalg
+
+    // println("eth price:", price);
+    // println("olas beholdning:", OValue);
+    // println("avkastning:", OReturns);
+
+    //-----------------------------------------------------------------------------RUTER
+
+
+    ruter = loadJSONArray("http://reis.trafikanten.no/reisrest/realtime/getrealtimedata/3010057");
+
+    for (int i = 0; i < 3; i++) {
+      JSONObject tram = ruter.getJSONObject(i);
+
+      String number = tram.getString("PublishedLineName");
+      String name = tram.getString("DestinationName");
+      String time = tram.getString("ExpectedDepartureTime");
+      Date d = new Date();
+      long a = d.getTime();
+      String time2 = time.substring(6, 19); 
+      long b = Long.parseLong(time2);
+      long c = b - a; 
+      int dif = (int(c)/1000)/60;
+textFont(tittel,20);
+      text("Holbergs plass:", 800, 100);
+      textFont(font,14);
+      text(number + " " + name + " -  " + dif +"min", 800, 130+(i*30));
+    }
+    //-----------------------------------------------------------------------------SKJERMSPARER
+  } else {
+
+    translate(width/2, height/2);
+    rotate(r);
+    float x=0;
+    while (x<width) {
+      point(width*noise(x/250, my_num), x);
+      stroke(bronze, 20);
+      x=x+.7;
+    }
+    my_num=my_num+0.001;
+    r=r+0.002;
+  }
+}
